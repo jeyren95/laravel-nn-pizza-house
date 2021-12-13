@@ -11,30 +11,24 @@
 |
 */
 
+// :: allows access to the props and methods of the class
 Route::get('/', function () {
     return view('welcome');
 });
 
-// :: allows access to the props and methods of the class
-Route::get("/pizzas", function() {
-    $pizzas = [
-        ["type" => "pepperoni", "base" => "cheesy crust"],
-        ["type" => "volcano", "base" => "garlic crust"],
-        ["type" => "veg supreme", "base" => "thin & crispy"] 
-    ];
-
-    return view("pizzas", [
-        "pizzas" => $pizzas, 
-        // accessing query params
-        "name" => request("name"), 
-        "age" => request("age")
-    ]);
-});
+// allows the route to use the auth middleware => so if they are not logged in, they will be re-directed to the login page
+Route::get("/pizzas", "PizzaController@index")->name("pizzas.index")->middleware("auth");
+Route::post("/pizzas", "PizzaController@store")->name("pizzas.store");
+Route::get("/pizzas/create", "PizzaController@create")->name("pizzas.create");
+Route::get("/pizzas/{id}", "PizzaController@show")->name("pizzas.show")->middleware("auth");
+Route::delete("/pizzas/{id}", "PizzaController@destroy")->name("pizzas.destroy")->middleware("auth");;
 
 
-// accessing route params
-Route::get("/pizzas/{id}", function($id) {
-    return view("details", [
-        "id" => $id
-    ]);
-});
+// this is essentially a compiled version of the above
+// this helps to disable the "register" route => i am guessing it uses the name of the route as the key
+Auth::routes([
+    "register" => false
+]);
+
+
+Route::get('/home', 'HomeController@index')->name('home');
